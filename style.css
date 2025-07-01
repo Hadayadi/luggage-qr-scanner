@@ -1,0 +1,114 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #1c1c1c;
+  --header-bg: #f6f8fa;
+  --scanner-bg: #fff;
+  --result-bg: #e0f2f1;
+  --result-border: #26a69a;
+  --button-bg: #007f5f;
+  --button-text: #ffffff;
+}
+
+body.dark {
+  --bg-color: #1e1e1e;
+  --text-color: #e0e0e0;
+  --header-bg: #2c2c2c;
+  --scanner-bg: #333;
+  --result-bg: #004d40;
+  --result-border: #26a69a;
+  --button-bg: #26a69a;
+  --button-text: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: var(--header-bg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+header img {
+  height: 50px;
+}
+
+header h1 {
+  font-size: 20px;
+  color: var(--text-color);
+}
+
+#reader {
+  width: 320px;
+  border-radius: 12px;
+  background-color: var(--scanner-bg);
+  padding: 15px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.08);
+  margin-top: 30px;
+}
+
+#result {
+  margin-top: 20px;
+  font-size: 18px;
+  color: var(--button-bg);
+  padding: 12px 20px;
+  background-color: var(--result-bg);
+  border: 1px solid var(--result-border);
+  border-radius: 8px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+footer {
+  margin-top: auto;
+  padding: 20px;
+  font-size: 14px;
+  color: #888;
+  text-align: center;
+}
+
+.controls {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background-color: #005f47;
+}
+
+@media (max-width: 400px) {
+  #reader {
+    width: 95%;
+  }
+}

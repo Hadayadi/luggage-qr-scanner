@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SGS Luggage Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <img src="sgs.png" alt="SGS Logo">
+    <h1 id="main-title">Luggage Code Scanner</h1>
+  </header>
+
+  <div class="controls">
+    <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
+    <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
+  </div>
+
+  <div id="reader"></div>
+
+  <div id="result">Waiting for scan...</div>
+
+  <footer>© 2025 Saudi Ground Services Academy</footer>
+
+  <script>
+    window.isArabic = false;
+
+    function toggleLanguage() {
+      window.isArabic = !window.isArabic;
+
+      document.getElementById('main-title').textContent = isArabic
+        ? 'ماسح رمز الأمتعة'
+        : 'Luggage Code Scanner';
+
+      document.getElementById("result").textContent = isArabic
+        ? 'في انتظار المسح...'
+        : 'Waiting for scan...';
+
+      document.querySelector('footer').textContent = isArabic
+        ? '© 2025 الأكاديمية السعودية للخدمات الأرضية'
+        : '© 2025 Saudi Ground Services Academy';
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
