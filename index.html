@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Luggage QR Scanner</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f2f2f2; margin: 0; padding: 0; }
-        h1 { background-color: #003366; color: white; padding: 20px; }
-        #reader { width: 300px; margin: 20px auto; }
-        #result { margin-top: 20px; font-size: 18px; }
-        footer { margin-top: 40px; font-size: 14px; color: #666; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Luggage QR Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; }
+    #reader { width: 300px; margin: 20px auto; }
+    #result { margin-top: 20px; font-size: 18px; }
+  </style>
 </head>
 <body>
-    <h1>Luggage QR Scanner</h1>
-    <div id="reader"></div>
-    <div id="result">Scan a QR code</div>
-    <footer>&copy; 2025 Saudi Ground Services Academy</footer>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="script.js"></script>
+
+  <h1>Scan Luggage QR Code</h1>
+
+  <!-- 📷 Scanner Area -->
+  <div id="reader"></div>
+
+  <!-- 📍 Result Output -->
+  <div id="result">Waiting for scan...</div>
+
+  <!-- 🔊 Success sound (optional if autoplay issues) -->
+  <audio id="success-audio" src="success.mp3" preload="auto"></audio>
+
+  <script src="script.js"></script>
+  <script>
+    const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess);
+  </script>
+
 </body>
 </html>
