@@ -27,12 +27,10 @@ function onScanSuccess(decodedText) {
         });
 }
 
-// Start QR Scanner
 const html5QrCode = new Html5Qrcode("reader");
-
 html5QrCode.start(
     { facingMode: "environment" }, 
-    { fps: 10, qrbox: 250 }, 
+    { fps: 10, qrbox: 250 },
     onScanSuccess
 ).catch(err => {
     document.getElementById("result").innerHTML = `<span style="color:red;">Camera error: ${err}</span>`;
