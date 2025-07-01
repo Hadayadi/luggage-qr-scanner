@@ -1,56 +1,48 @@
-<style>
-  body {
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f2f2f2;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f8;
-    color: #1e2a38;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  h1 {
-    margin: 30px 0 10px;
-    font-size: 24px;
-    color: #003366;
-  }
-
-  #reader {
-    width: 320px;
-    max-width: 100%;
-    border-radius: 12px;
-    border: 2px solid #d0d7de;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    background-color: #ffffff;
-    padding: 10px;
-    margin-top: 20px;
-  }
-
-  #result {
-    margin-top: 20px;
-    font-size: 16px;
-    color: #0d47a1;
-    background-color: #e3f2fd;
-    border: 1px solid #bbdefb;
-    padding: 15px 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    text-align: left;
-    line-height: 1.6;
-  }
-
-  audio {
-    display: none;
-  }
-
-  footer {
-    margin-top: auto;
-    padding: 20px;
-    font-size: 14px;
-    color: #999;
     text-align: center;
-  }
-</style>
+    color: #222;
+}
+
+header {
+    background-color: #002f67;
+    padding: 15px 0;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    height: 40px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.6em;
+}
+
+.instruction {
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+#reader {
+    width: 300px;
+    margin: 20px auto;
+}
+
+#result {
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+footer {
+    margin-top: 50px;
+    font-size: 0.9em;
+    color: #888;
+}
