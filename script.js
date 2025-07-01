@@ -1,9 +1,14 @@
 function onScanSuccess(decodedText) {
     const resultBox = document.getElementById("result");
-    resultBox.innerText = "Checking...";
+    resultBox.innerHTML = "<em>Checking...</em>";
 
-    fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec?code=${decodedText}`)
-        .then(res => res.json())
+    fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec?code=${encodeURIComponent(decodedText)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
                 resultBox.innerHTML = `<span style="color:red;">Code not found.</span>`;
@@ -20,9 +25,15 @@ function onScanSuccess(decodedText) {
                 <strong>Special Needs:</strong> ${needs || 'None'}
             `;
 
-            new Audio("success.mp3").play();
+            try {
+                const audio = new Audio("success.mp3");
+                audio.play();
+            } catch (e) {
+                console.warn("Audio playback failed:", e);
+            }
         })
-        .catch(err => {
-            resultBox.innerHTML = `<span style="color:red;">Error occurred.</span>`;
+        .catch(error => {
+            console.error("Fetch error:", error);
+            resultBox.innerHTML = `<span style="color:red;">Error occurred while checking. Please try again.</span>`;
         });
 }
