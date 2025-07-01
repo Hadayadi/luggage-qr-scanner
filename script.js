@@ -1,14 +1,9 @@
 function onScanSuccess(decodedText) {
     const resultBox = document.getElementById("result");
-    resultBox.innerHTML = "<em>Checking...</em>";
+    resultBox.innerText = "Checking...";
 
-    fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec?code=${encodeURIComponent(decodedText)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        })
+    fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec?code=${decodedText}`)
+        .then(res => res.json())
         .then(data => {
             if (data.error) {
                 resultBox.innerHTML = `<span style="color:red;">Code not found.</span>`;
@@ -25,15 +20,20 @@ function onScanSuccess(decodedText) {
                 <strong>Special Needs:</strong> ${needs || 'None'}
             `;
 
-            try {
-                const audio = new Audio("success.mp3");
-                audio.play();
-            } catch (e) {
-                console.warn("Audio playback failed:", e);
-            }
+            new Audio("success.mp3").play();
         })
-        .catch(error => {
-            console.error("Fetch error:", error);
-            resultBox.innerHTML = `<span style="color:red;">Error occurred while checking. Please try again.</span>`;
+        .catch(err => {
+            resultBox.innerHTML = `<span style="color:red;">Error occurred.</span>`;
         });
 }
+
+// Start QR Scanner
+const html5QrCode = new Html5Qrcode("reader");
+
+html5QrCode.start(
+    { facingMode: "environment" }, 
+    { fps: 10, qrbox: 250 }, 
+    onScanSuccess
+).catch(err => {
+    document.getElementById("result").innerHTML = `<span style="color:red;">Camera error: ${err}</span>`;
+});
