@@ -2,7 +2,7 @@ function onScanSuccess(decodedText) {
     const resultBox = document.getElementById("result");
     resultBox.innerText = "Checking...";
 
-    fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec`)
+    fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec?code=${decodedText}`)
         .then(res => res.json())
         .then(data => {
             if (data.error) {
