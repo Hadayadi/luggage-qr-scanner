@@ -51,7 +51,7 @@
       background-color: var(--header-bg);
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       flex-direction: column;
-      gap: 10px;
+      gap: 5px;
     }
 
     header img {
@@ -62,6 +62,7 @@
       font-size: 20px;
       color: var(--text-color);
       margin: 0;
+      text-align: center;
     }
 
     #reader {
@@ -104,7 +105,7 @@
       justify-content: center;
     }
 
-    .btn, select {
+    .btn {
       padding: 10px 18px;
       border: none;
       border-radius: 6px;
@@ -120,11 +121,6 @@
       background-color: #005f47;
     }
 
-    select {
-      appearance: none;
-      text-align: center;
-    }
-
     @media (max-width: 400px) {
       #reader {
         width: 95%;
@@ -132,6 +128,7 @@
 
       header h1 {
         font-size: 16px;
+        text-align: center;
       }
     }
   </style>
@@ -144,7 +141,8 @@
   </header>
 
   <div class="controls">
-    <button class="btn" onclick="toggleCamera()">Back Camera</button>
+    <button class="btn" onclick="switchCamera('environment')">Back Camera</button>
+    <button class="btn" onclick="switchCamera('user')">Front Camera</button>
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
     <button class="btn" onclick="uploadImage()">Upload Image</button>
