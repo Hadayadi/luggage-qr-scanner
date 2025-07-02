@@ -116,6 +116,25 @@
       background-color: #005f47;
     }
 
+    select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-weight: 600;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label.upload-btn {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     @media (max-width: 400px) {
       #reader {
         width: 95%;
@@ -133,6 +152,13 @@
   <div class="controls">
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
+
+    <select id="cameraSelector"></select>
+
+    <label class="upload-btn">
+      🖼️ Upload Image
+      <input type="file" id="uploadFile" accept="image/*">
+    </label>
   </div>
 
   <div id="reader"></div>
@@ -165,6 +191,7 @@
       document.body.classList.toggle('dark');
     }
   </script>
+
   <script src="script.js"></script>
 </body>
 </html>
