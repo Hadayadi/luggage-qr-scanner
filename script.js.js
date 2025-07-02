@@ -17,7 +17,7 @@ Html5Qrcode.getCameras().then(devices => {
         console.log("✅ Code scanned:", decodedText);
 
         // Replace this URL with your actual deployed Apps Script Web App URL
-        const apiUrl = "https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec?code=" + encodeURIComponent(decodedText);
+        const apiUrl = "https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec" + encodeURIComponent(decodedText);
 
         fetch(apiUrl)
           .then(response => response.json())
