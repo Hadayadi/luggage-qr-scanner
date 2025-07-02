@@ -46,10 +46,12 @@
       width: 100%;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       padding: 10px 20px;
       background-color: var(--header-bg);
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      flex-direction: column;
+      gap: 10px;
     }
 
     header img {
@@ -59,6 +61,7 @@
     header h1 {
       font-size: 20px;
       color: var(--text-color);
+      margin: 0;
     }
 
     #reader {
@@ -126,6 +129,10 @@
       #reader {
         width: 95%;
       }
+
+      header h1 {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
@@ -137,8 +144,10 @@
   </header>
 
   <div class="controls">
+    <button class="btn" onclick="toggleCamera()">Back Camera</button>
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
+    <button class="btn" onclick="uploadImage()">Upload Image</button>
   </div>
 
   <div id="reader"></div>
