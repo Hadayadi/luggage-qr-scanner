@@ -1,131 +1,99 @@
-const resultElement = document.getElementById("result");
-const reader = new Html5Qrcode("reader");
-let currentCameraId = null;
-let isArabic = false;
+let html5QrcodeScanner;
+let currentCamera = 'environment'; // Default to back camera
 
-// Google Apps Script Web App URL
-const API_URL = "https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec";
+const qrCodeSuccessCallback = async (decodedText) => {
+  document.getElementById("result").textContent = window.isArabic ? "جارٍ التحميل..." : "Loading...";
 
-// Start QR scanning
-function startScanner(cameraId) {
-  reader.start(
-    cameraId,
-    {
-      fps: 10,
-      qrbox: { width: 250, height: 250 }
-    },
-    onScanSuccess,
-    (error) => {
-      console.warn("QR scan error:", error);
+  try {
+    const response = await fetch(`https://script.google.com/macros/s/AKfycbyUyfpiO2tGtJ80__hehw-wGIRLMFj8cuEusmim-9NXDC-T6HCpLVCaZPeZrv8sAkUk/exec?code=${decodedText}`);
+    const data = await response.json();
+
+    if (data.error) {
+      document.getElementById("result").textContent = window.isArabic ? "لم يتم العثور على الوجهة" : "Destination not found";
+    } else {
+      const details = `
+        ${window.isArabic ? 'الوجهة' : 'Destination'}: ${data.destination}
+        ${window.isArabic ? 'المالك' : 'Owner'}: ${data.owner}
+        ${window.isArabic ? 'الوصول' : 'Arrival'}: ${data.arrival}
+        ${window.isArabic ? 'من' : 'From'}: ${data.from}
+        ${window.isArabic ? 'المغادرة' : 'Departure'}: ${data.departure}
+        ${window.isArabic ? 'إلى' : 'To'}: ${data.to}
+        ${window.isArabic ? 'التالي' : 'Next'}: ${data.next}
+        ${window.isArabic ? 'الاحتياجات' : 'Needs'}: ${data.needs}
+      `;
+      document.getElementById("result").textContent = details;
     }
-  ).catch((err) => {
+  } catch (err) {
+    document.getElementById("result").textContent = window.isArabic ? "فشل الاتصال بالخادم" : "Could not reach server.";
+  }
+};
+
+const startScanner = async () => {
+  const config = {
+    fps: 10,
+    qrbox: 250,
+    aspectRatio: 1.333,
+    facingMode: currentCamera
+  };
+
+  if (html5QrcodeScanner) {
+    await html5QrcodeScanner.stop();
+  }
+
+  html5QrcodeScanner = new Html5Qrcode("reader");
+  html5QrcodeScanner.start(
+    { facingMode: currentCamera },
+    config,
+    qrCodeSuccessCallback
+  ).catch(err => {
     console.error("Camera start error:", err);
-    resultElement.textContent = isArabic ? "فشل تشغيل الكاميرا." : "Failed to start camera.";
+    document.getElementById("result").textContent = window.isArabic ? "تعذر بدء الكاميرا" : "Unable to start camera.";
   });
-}
+};
 
-// When QR is scanned
-function onScanSuccess(decodedText) {
-  reader.stop().then(() => {
-    fetch(`${API_URL}?code=${encodeURIComponent(decodedText)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          resultElement.textContent = isArabic ? "تعذر الوصول إلى الخادم." : "Could not reach server.";
-        } else {
-          resultElement.innerHTML = `
-            <strong>${isArabic ? 'الوجهة' : 'Destination'}:</strong> ${data.destination}<br>
-            <strong>${isArabic ? 'المالك' : 'Owner'}:</strong> ${data.owner}<br>
-            <strong>${isArabic ? 'الوصول' : 'Arrival'}:</strong> ${data.arrival}<br>
-            <strong>${isArabic ? 'من' : 'From'}:</strong> ${data.from}<br>
-            <strong>${isArabic ? 'المغادرة' : 'Departure'}:</strong> ${data.departure}<br>
-            <strong>${isArabic ? 'إلى' : 'To'}:</strong> ${data.to}<br>
-            <strong>${isArabic ? 'التالي' : 'Next'}:</strong> ${data.next}<br>
-            <strong>${isArabic ? 'الاحتياجات' : 'Needs'}:</strong> ${data.needs}
-          `;
-        }
-      }).catch(err => {
-        console.error("Fetch error:", err);
-        resultElement.textContent = isArabic ? "خطأ في الاتصال بالخادم." : "Error reaching server.";
-      });
-  });
-}
+const switchCamera = async (facingMode) => {
+  currentCamera = facingMode;
+  await startScanner();
+};
 
-// Toggle language function (linked in HTML)
+window.isArabic = false;
+
 function toggleLanguage() {
-  isArabic = !isArabic;
-
-  document.getElementById('main-title').textContent = isArabic
-    ? 'ماسح رمز الأمتعة'
-    : 'Luggage Code Scanner';
-
-  document.getElementById("result").textContent = isArabic
-    ? 'في انتظار المسح...'
-    : 'Waiting for scan...';
-
-  document.querySelector('footer').textContent = isArabic
-    ? '© 2025 الأكاديمية السعودية للخدمات الأرضية'
-    : '© 2025 Saudi Ground Services Academy';
+  window.isArabic = !window.isArabic;
+  document.getElementById('main-title').textContent = isArabic ? 'ماسح رمز الأمتعة' : 'Luggage Code Scanner';
+  document.getElementById("result").textContent = isArabic ? 'في انتظار المسح...' : 'Waiting for scan...';
+  document.querySelector('footer').textContent = isArabic ? '© 2025 الأكاديمية السعودية للخدمات الأرضية' : '© 2025 Saudi Ground Services Academy';
 }
 
-// Toggle dark/light mode
 function toggleDarkMode() {
   document.body.classList.toggle('dark');
 }
 
-// Upload image and decode QR
-document.addEventListener("DOMContentLoaded", () => {
-  Html5Qrcode.getCameras().then(devices => {
-    if (devices && devices.length) {
-      const select = document.createElement("select");
-      select.className = "btn";
-      devices.forEach(device => {
-        const option = document.createElement("option");
-        option.value = device.id;
-        option.text = device.label || `Camera ${device.id}`;
-        select.appendChild(option);
-      });
+function uploadImage() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
 
-      select.addEventListener("change", () => {
-        if (currentCameraId) reader.stop();
-        currentCameraId = select.value;
-        startScanner(currentCameraId);
-      });
+  input.onchange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-      document.querySelector(".controls").prepend(select);
-      currentCameraId = devices[0].id;
-      startScanner(currentCameraId);
-    }
-  }).catch(err => {
-    resultElement.textContent = "Camera access error: " + err;
-    console.error(err);
-  });
-
-  // Upload image support
-  const uploadBtn = document.createElement("button");
-  uploadBtn.className = "btn";
-  uploadBtn.textContent = isArabic ? "تحميل صورة" : "Upload Image";
-  uploadBtn.onclick = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      Html5Qrcode.getCameras().then(() => {
-        const html5Qr = new Html5Qrcode("reader");
-        html5Qr.scanFile(file, true)
-          .then(onScanSuccess)
-          .catch(err => {
-            console.error("Image decode error:", err);
-            resultElement.textContent = isArabic
-              ? "لم يتم العثور على رمز QR في الصورة."
-              : "No QR code found in image.";
-          });
-      });
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const html5QrCode = new Html5Qrcode("reader");
+      try {
+        const decodedText = await html5QrCode.scanFile(file, true);
+        qrCodeSuccessCallback(decodedText);
+      } catch (err) {
+        document.getElementById("result").textContent = isArabic ? "لم يتم العثور على رمز QR." : "QR code not found.";
+      }
     };
-    input.click();
+    reader.readAsDataURL(file);
   };
-  document.querySelector(".controls").appendChild(uploadBtn);
-});
+
+  input.click();
+}
+
+window.onload = () => {
+  startScanner();
+};
