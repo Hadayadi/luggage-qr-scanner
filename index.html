@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>SGS Luggage Scanner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://unpkg.com/html5-qrcode"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg-color: #ffffff;
@@ -44,12 +44,10 @@
     header {
       width: 100%;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 20px;
-      background-color: var(--header-bg);
       flex-direction: column;
-      gap: 5px;
+      align-items: center;
+      padding: 10px;
+      background-color: var(--header-bg);
     }
 
     header img {
@@ -68,7 +66,7 @@
       background-color: var(--scanner-bg);
       padding: 15px;
       margin-top: 30px;
-      box-shadow: 0 0 12px rgba(0,0,0,0.08);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
     }
 
     #result {
@@ -126,16 +124,14 @@
   </style>
 </head>
 <body>
-
   <header>
-    <img src="sgs.png" alt="SGS Logo">
+    <img src="YOUR_IMAGE.png" alt="SGS Logo" />
     <h1 id="main-title">Luggage Code Scanner</h1>
   </header>
 
   <div class="controls">
     <button class="btn" onclick="switchCamera('environment')">Back Camera</button>
     <button class="btn" onclick="switchCamera('user')">Front Camera</button>
-    <button class="btn" onclick="uploadImage()">Upload Image</button>
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
   </div>
@@ -147,9 +143,8 @@
 
   <script>
     const apiUrl = "https://api.sheetbest.com/sheets/141d75ff-f837-4250-9528-ecb937f461ac";
-
-    let isArabic = false;
     const html5QrCode = new Html5Qrcode("reader");
+    let isArabic = false;
 
     function toggleLanguage() {
       isArabic = !isArabic;
@@ -172,40 +167,19 @@
             : cam.label.toLowerCase().includes("back")
         )?.id || devices[0].id;
 
-        html5QrCode.stop().then(() => {
+        html5QrCode.stop().catch(() => {}).finally(() => {
           html5QrCode.start(
             deviceIdToUse,
             { fps: 10, qrbox: { width: 250, height: 250 } },
             onScanSuccess,
-            () => {}
-          );
-        }).catch(() => {
-          html5QrCode.start(
-            deviceIdToUse,
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            onScanSuccess,
-            () => {}
+            (error) => {
+              document.getElementById("result").textContent = isArabic
+                ? "فشل في التعرف على الرمز"
+                : "Failed to scan QR code.";
+            }
           );
         });
       });
-    }
-
-    function uploadImage() {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.onchange = () => {
-        const file = input.files[0];
-        if (!file) return;
-        html5QrCode.scanFile(file, true)
-          .then(onScanSuccess)
-          .catch(() => {
-            document.getElementById("result").textContent = isArabic
-              ? "فشل في قراءة الصورة"
-              : "Failed to decode image.";
-          });
-      };
-      input.click();
     }
 
     function onScanSuccess(decodedText) {
@@ -221,8 +195,7 @@
             document.getElementById("result").textContent = `
 ${isArabic ? "الوجهة" : "Destination"}: ${match.destination}
 ${isArabic ? " | المالك" : " | Owner"}: ${match.owner}
-${isArabic ? " | الوصول" : " | Arrival"}: ${match.arrival}
-            `;
+${isArabic ? " | الوصول" : " | Arrival"}: ${match.arrival}`;
           } else {
             document.getElementById("result").textContent = isArabic
               ? "الرمز غير موجود"
