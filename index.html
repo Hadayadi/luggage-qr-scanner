@@ -7,6 +7,7 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    /* (Same styles from your original code — unchanged) */
     :root {
       --bg-color: #ffffff;
       --text-color: #1c1c1c;
@@ -150,7 +151,6 @@
   </div>
 
   <div id="reader"></div>
-
   <div id="result">Waiting for scan...</div>
 
   <footer>© 2025 Saudi Ground Services Academy</footer>
@@ -165,7 +165,6 @@
           await html5QrCode.stop();
           await html5QrCode.clear();
         }
-
         currentFacingMode = mode;
         startCamera();
       } catch (err) {
@@ -209,17 +208,21 @@
       const resultBox = document.getElementById("result");
       resultBox.textContent = "Fetching data...";
 
-      fetch(`https://script.google.com/macros/s/AKfycbxNC4cp2rlmHhVLUQQlOrG42sxFPJ1thzV7vx9CVJ_HCvzGVJqqfXp8uhC6JtlNLrMK/exec?code=${decodedText}`)
+      fetch("https://sheet.best/api/sheets/YOUR-UUID-HERE")
         .then(res => res.json())
         .then(data => {
-          if (data.error) {
-            resultBox.textContent = data.error;
+          const match = data.find(row => row.Code === decodedText);
+          if (match) {
+            resultBox.textContent =
+              `Destination: ${match.Destination || 'N/A'}\n` +
+              `Owner: ${match.Owner || 'N/A'}\n` +
+              `Arrival: ${match.Arrival || 'N/A'}`;
           } else {
-            resultBox.textContent = `Destination: ${data.destination}\nOwner: ${data.owner}\nArrival: ${data.arrival}`;
+            resultBox.textContent = "Code not found.";
           }
         })
         .catch(() => {
-          resultBox.textContent = "Error contacting server.";
+          resultBox.textContent = "Error fetching data.";
         });
     }
 
