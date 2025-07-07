@@ -77,10 +77,6 @@
       text-align: center;
       white-space: pre-wrap;
     }
-    #uploaded-img-preview {
-      margin-top: 10px;
-      max-width: 100%;
-    }
     .controls, .manual-input {
       margin-top: 30px;
       display: flex;
@@ -111,13 +107,22 @@
       font-size: 16px;
       width: 200px;
     }
-    @media (max-width: 400px) {
-      #reader {
-        width: 95%;
-      }
+    table {
+      margin-top: 40px;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 800px;
+    }
+    table, th, td {
+      border: 1px solid #999;
+    }
+    th, td {
+      padding: 8px;
+      font-size: 14px;
+      text-align: center;
     }
     footer {
-      margin-top: auto;
+      margin-top: 40px;
       padding: 20px;
       font-size: 14px;
       color: #888;
@@ -149,6 +154,8 @@
   <div id="reader"></div>
   <div id="result">Waiting for scan...</div>
   <img id="uploaded-img-preview" />
+
+  <div id="table-preview"></div>
 
   <footer>© 2025 Saudi Ground Services Academy</footer>
 
@@ -219,11 +226,14 @@
       fetchResult(code);
     }
 
-    function fetchResult(decodedText) {
+    function fetchResult(code) {
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
-          const match = data.find(row => row.CQ === decodedText);
+          console.log("Available Codes:", data.map(row => row.CQ));
+          renderTable(data);
+
+          const match = data.find(row => String(row.CQ).trim() === code.trim());
           if (match) {
             document.getElementById("result").textContent = `
 ${isArabic ? "الوجهة" : "Destination"}: ${match.Destination}
@@ -238,6 +248,31 @@ ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
           document.getElementById("result").textContent = isArabic ? "خطأ في الاتصال بالخادم" : "Error contacting server.";
           html5QrCode.resume();
         });
+    }
+
+    function renderTable(data) {
+      const container = document.getElementById("table-preview");
+      if (!data.length) {
+        container.innerHTML = "";
+        return;
+      }
+
+      let table = "<table><thead><tr>";
+      for (let key in data[0]) {
+        table += `<th>${key}</th>`;
+      }
+      table += "</tr></thead><tbody>";
+
+      for (let row of data) {
+        table += "<tr>";
+        for (let key in row) {
+          table += `<td>${row[key]}</td>`;
+        }
+        table += "</tr>";
+      }
+
+      table += "</tbody></table>";
+      container.innerHTML = table;
     }
 
     window.onload = () => {
