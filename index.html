@@ -139,6 +139,7 @@
   <div class="controls">
     <button class="btn" onclick="requestCameraPermissions()">Request Camera Permissions</button>
     <button class="btn" onclick="startScanner()">Start Camera</button>
+    <button class="btn" onclick="switchCamera('environment')">Back Camera</button>
     <button class="btn" onclick="switchCamera('user')">Front Camera</button>
     <label class="btn" for="qr-file">Scan an Image File</label>
     <input type="file" id="qr-file" accept="image/*" onchange="handleFileUpload(event)">
@@ -185,8 +186,8 @@
       document.getElementById("reader").innerHTML = "";
       Html5Qrcode.getCameras().then(devices => {
         if (devices && devices.length) {
-          const cameraId = devices[0].id;
-          html5QrCode.start(cameraId, {
+          const backCam = devices.find(d => d.label.toLowerCase().includes("back")) || devices[0];
+          html5QrCode.start(backCam.id, {
             fps: 10,
             qrbox: { width: 250, height: 250 }
           }, onScanSuccess)
@@ -202,6 +203,23 @@
       });
     }
 
+    function switchCamera(facingMode) {
+      Html5Qrcode.getCameras().then(devices => {
+        const cam = devices.find(d =>
+          facingMode === "user"
+            ? d.label.toLowerCase().includes("front")
+            : d.label.toLowerCase().includes("back")
+        ) || devices[0];
+
+        html5QrCode.stop().catch(() => {}).finally(() => {
+          html5QrCode.start(cam.id, {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+          }, onScanSuccess, () => {});
+        });
+      });
+    }
+
     function onScanSuccess(decodedText) {
       html5QrCode.pause();
       document.getElementById("result").textContent = isArabic ? "جارٍ التحقق..." : "Validating...";
@@ -211,10 +229,12 @@
     function handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
+
       document.getElementById("uploaded-img-preview").src = URL.createObjectURL(file);
       html5QrCode.scanFile(file, true)
         .then(onScanSuccess)
-        .catch(() => {
+        .catch((err) => {
+          console.error("Failed image scan:", err);
           document.getElementById("result").textContent = isArabic ? "فشل في قراءة الصورة" : "Failed to scan image.";
         });
     }
@@ -239,7 +259,7 @@
 ${isArabic ? "الوجهة" : "Destination"}: ${match.Destination}
 ${isArabic ? " | المالك" : " | Owner"}: ${match.owner}
 ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
-            renderTable([match]); // ✅ يعرض فقط الصف المطابق
+            renderTable([match]);
           } else {
             document.getElementById("result").textContent = isArabic ? "الرمز غير موجود" : "Code not found.";
             renderTable([]);
