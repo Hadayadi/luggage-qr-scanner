@@ -78,7 +78,7 @@
       white-space: pre-wrap;
     }
     .controls, .manual-input {
-      margin-top: 30px;
+      margin-top: 20px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -108,7 +108,7 @@
       width: 200px;
     }
     table {
-      margin-top: 40px;
+      margin-top: 30px;
       border-collapse: collapse;
       width: 90%;
       max-width: 800px;
@@ -138,7 +138,7 @@
 
   <div class="controls">
     <button class="btn" onclick="requestCameraPermissions()">Request Camera Permissions</button>
-    <button class="btn" onclick="switchCamera('environment')">Back Camera</button>
+    <button class="btn" onclick="startScanner()">Start Camera</button>
     <button class="btn" onclick="switchCamera('user')">Front Camera</button>
     <label class="btn" for="qr-file">Scan an Image File</label>
     <input type="file" id="qr-file" accept="image/*" onchange="handleFileUpload(event)">
@@ -181,21 +181,24 @@
         .catch(() => alert(isArabic ? "تم رفض إذن الكاميرا!" : "Camera permission denied!"));
     }
 
-    function switchCamera(facingMode) {
+    function startScanner() {
+      document.getElementById("reader").innerHTML = "";
       Html5Qrcode.getCameras().then(devices => {
-        let deviceIdToUse = devices.find(cam =>
-          facingMode === "user"
-            ? cam.label.toLowerCase().includes("front")
-            : cam.label.toLowerCase().includes("back")
-        )?.id || devices[0].id;
-
-        html5QrCode.stop().catch(() => {}).finally(() => {
-          html5QrCode.start(deviceIdToUse, {
+        if (devices && devices.length) {
+          const cameraId = devices[0].id;
+          html5QrCode.start(cameraId, {
             fps: 10,
-            qrbox: { width: 250, height: 250 },
-            experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-          }, onScanSuccess, () => {});
-        });
+            qrbox: { width: 250, height: 250 }
+          }, onScanSuccess)
+          .catch(err => {
+            console.error("Camera start error:", err);
+            alert("Failed to start camera.");
+          });
+        } else {
+          alert("No cameras found.");
+        }
+      }).catch(err => {
+        console.error("Camera error:", err);
       });
     }
 
@@ -230,17 +233,16 @@
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
-          console.log("Available Codes:", data.map(row => row.CQ));
-          renderTable(data);
-
           const match = data.find(row => String(row.CQ).trim() === code.trim());
           if (match) {
             document.getElementById("result").textContent = `
 ${isArabic ? "الوجهة" : "Destination"}: ${match.Destination}
 ${isArabic ? " | المالك" : " | Owner"}: ${match.owner}
 ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
+            renderTable([match]); // ✅ يعرض فقط الصف المطابق
           } else {
             document.getElementById("result").textContent = isArabic ? "الرمز غير موجود" : "Code not found.";
+            renderTable([]);
           }
         })
         .catch((err) => {
@@ -275,7 +277,7 @@ ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
     }
 
     window.onload = () => {
-      switchCamera("environment");
+      document.getElementById("reader").innerHTML = "";
     };
   </script>
 </body>
