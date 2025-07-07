@@ -125,13 +125,14 @@
 </head>
 <body>
   <header>
-    <img src="YOUR_IMAGE.png" alt="SGS Logo" />
+    <img src="sgs.png" alt="SGS Logo" />
     <h1 id="main-title">Luggage Code Scanner</h1>
   </header>
 
   <div class="controls">
     <button class="btn" onclick="switchCamera('environment')">Back Camera</button>
     <button class="btn" onclick="switchCamera('user')">Front Camera</button>
+    <button class="btn" onclick="uploadImage()">📷 Upload Image</button>
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
   </div>
@@ -172,14 +173,28 @@
             deviceIdToUse,
             { fps: 10, qrbox: { width: 250, height: 250 } },
             onScanSuccess,
-            (error) => {
-              document.getElementById("result").textContent = isArabic
-                ? "فشل في التعرف على الرمز"
-                : "Failed to scan QR code.";
-            }
+            () => {}
           );
         });
       });
+    }
+
+    function uploadImage() {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = () => {
+        const file = input.files[0];
+        if (!file) return;
+        html5QrCode.scanFile(file, true)
+          .then(onScanSuccess)
+          .catch(() => {
+            document.getElementById("result").textContent = isArabic
+              ? "فشل في قراءة الصورة"
+              : "Failed to decode image.";
+          });
+      };
+      input.click();
     }
 
     function onScanSuccess(decodedText) {
@@ -190,7 +205,6 @@
         .then(res => res.json())
         .then(data => {
           const match = data.find(row => row.CQ === decodedText);
-
           if (match) {
             document.getElementById("result").textContent = `
 ${isArabic ? "الوجهة" : "Destination"}: ${match.Destination}
@@ -201,7 +215,6 @@ ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
               ? "الرمز غير موجود"
               : "Code not found.";
           }
-
           html5QrCode.resume();
         })
         .catch(() => {
