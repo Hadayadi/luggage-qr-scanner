@@ -189,13 +189,13 @@
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
-          const match = data.find(row => row.code === decodedText);
+          const match = data.find(row => row.CQ === decodedText);
 
           if (match) {
             document.getElementById("result").textContent = `
-${isArabic ? "الوجهة" : "Destination"}: ${match.destination}
+${isArabic ? "الوجهة" : "Destination"}: ${match.Destination}
 ${isArabic ? " | المالك" : " | Owner"}: ${match.owner}
-${isArabic ? " | الوصول" : " | Arrival"}: ${match.arrival}`;
+${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
           } else {
             document.getElementById("result").textContent = isArabic
               ? "الرمز غير موجود"
