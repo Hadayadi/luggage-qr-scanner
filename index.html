@@ -81,14 +81,7 @@
       margin-top: 10px;
       max-width: 100%;
     }
-    footer {
-      margin-top: auto;
-      padding: 20px;
-      font-size: 14px;
-      color: #888;
-      text-align: center;
-    }
-    .controls {
+    .controls, .manual-input {
       margin-top: 30px;
       display: flex;
       gap: 10px;
@@ -108,13 +101,27 @@
     .btn:hover {
       background-color: #005f47;
     }
+    input[type="file"] {
+      display: none;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 1px solid var(--result-border);
+      border-radius: 6px;
+      font-size: 16px;
+      width: 200px;
+    }
     @media (max-width: 400px) {
       #reader {
         width: 95%;
       }
     }
-    input[type="file"] {
-      display: none;
+    footer {
+      margin-top: auto;
+      padding: 20px;
+      font-size: 14px;
+      color: #888;
+      text-align: center;
     }
   </style>
 </head>
@@ -132,6 +139,11 @@
     <input type="file" id="qr-file" accept="image/*" onchange="handleFileUpload(event)">
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
+  </div>
+
+  <div class="manual-input">
+    <input type="text" id="manual-code" placeholder="Enter QR Code" />
+    <button class="btn" onclick="manualSearch()">Search</button>
   </div>
 
   <div id="reader"></div>
@@ -183,7 +195,31 @@
     function onScanSuccess(decodedText) {
       html5QrCode.pause();
       document.getElementById("result").textContent = isArabic ? "جارٍ التحقق..." : "Validating...";
+      fetchResult(decodedText);
+    }
 
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      document.getElementById("uploaded-img-preview").src = URL.createObjectURL(file);
+      html5QrCode.scanFile(file, true)
+        .then(onScanSuccess)
+        .catch(() => {
+          document.getElementById("result").textContent = isArabic ? "فشل في قراءة الصورة" : "Failed to scan image.";
+        });
+    }
+
+    function manualSearch() {
+      const code = document.getElementById("manual-code").value.trim();
+      if (!code) {
+        alert(isArabic ? "الرجاء إدخال رمز صالح" : "Please enter a valid code.");
+        return;
+      }
+      document.getElementById("result").textContent = isArabic ? "جارٍ البحث..." : "Searching...";
+      fetchResult(code);
+    }
+
+    function fetchResult(decodedText) {
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
@@ -201,19 +237,6 @@ ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
         .catch(() => {
           document.getElementById("result").textContent = isArabic ? "خطأ في الاتصال بالخادم" : "Error contacting server.";
           html5QrCode.resume();
-        });
-    }
-
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      document.getElementById("uploaded-img-preview").src = URL.createObjectURL(file);
-
-      html5QrCode.scanFile(file, true)
-        .then(onScanSuccess)
-        .catch(err => {
-          document.getElementById("result").textContent = isArabic ? "فشل في قراءة الصورة" : "Failed to scan image.";
-          console.error(err);
         });
     }
 
