@@ -77,6 +77,10 @@
       text-align: center;
       white-space: pre-wrap;
     }
+    #uploaded-img-preview {
+      margin-top: 10px;
+      max-width: 100%;
+    }
     footer {
       margin-top: auto;
       padding: 20px;
@@ -109,35 +113,55 @@
         width: 95%;
       }
     }
+    input[type="file"] {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="SGS Logo" />
+    <img src="sgs.png" alt="SGS Logo" />
     <h1 id="main-title">Luggage Code Scanner</h1>
   </header>
+
   <div class="controls">
+    <button class="btn" onclick="requestCameraPermissions()">Request Camera Permissions</button>
     <button class="btn" onclick="switchCamera('environment')">Back Camera</button>
     <button class="btn" onclick="switchCamera('user')">Front Camera</button>
+    <label class="btn" for="qr-file">Scan an Image File</label>
+    <input type="file" id="qr-file" accept="image/*" onchange="handleFileUpload(event)">
     <button class="btn" onclick="toggleLanguage()">🇸🇦 Toggle Language</button>
     <button class="btn" onclick="toggleDarkMode()">🌙 Toggle Mode</button>
   </div>
+
   <div id="reader"></div>
   <div id="result">Waiting for scan...</div>
+  <img id="uploaded-img-preview" />
+
   <footer>© 2025 Saudi Ground Services Academy</footer>
+
   <script>
     const apiUrl = "https://api.sheetbest.com/sheets/141d75ff-f837-4250-9528-ecb937f461ac";
     const html5QrCode = new Html5Qrcode("reader");
     let isArabic = false;
+
     function toggleLanguage() {
       isArabic = !isArabic;
       document.getElementById('main-title').textContent = isArabic ? 'ماسح رمز الأمتعة' : 'Luggage Code Scanner';
       document.getElementById("result").textContent = isArabic ? 'في انتظار المسح...' : 'Waiting for scan...';
       document.querySelector('footer').textContent = isArabic ? '© 2025 الأكاديمية السعودية للخدمات الأرضية' : '© 2025 Saudi Ground Services Academy';
     }
+
     function toggleDarkMode() {
       document.body.classList.toggle('dark');
     }
+
+    function requestCameraPermissions() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(() => alert(isArabic ? "تم منح إذن الكاميرا!" : "Camera permission granted!"))
+        .catch(() => alert(isArabic ? "تم رفض إذن الكاميرا!" : "Camera permission denied!"));
+    }
+
     function switchCamera(facingMode) {
       Html5Qrcode.getCameras().then(devices => {
         let deviceIdToUse = devices.find(cam =>
@@ -145,14 +169,21 @@
             ? cam.label.toLowerCase().includes("front")
             : cam.label.toLowerCase().includes("back")
         )?.id || devices[0].id;
+
         html5QrCode.stop().catch(() => {}).finally(() => {
-          html5QrCode.start(deviceIdToUse, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, () => {});
+          html5QrCode.start(deviceIdToUse, {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+          }, onScanSuccess, () => {});
         });
       });
     }
+
     function onScanSuccess(decodedText) {
       html5QrCode.pause();
       document.getElementById("result").textContent = isArabic ? "جارٍ التحقق..." : "Validating...";
+
       fetch(apiUrl)
         .then(res => res.json())
         .then(data => {
@@ -172,6 +203,20 @@ ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
           html5QrCode.resume();
         });
     }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      document.getElementById("uploaded-img-preview").src = URL.createObjectURL(file);
+
+      html5QrCode.scanFile(file, true)
+        .then(onScanSuccess)
+        .catch(err => {
+          document.getElementById("result").textContent = isArabic ? "فشل في قراءة الصورة" : "Failed to scan image.";
+          console.error(err);
+        });
+    }
+
     window.onload = () => {
       switchCamera("environment");
     };
