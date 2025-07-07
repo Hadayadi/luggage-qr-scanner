@@ -242,11 +242,10 @@ ${isArabic ? " | الوصول" : " | Arrival"}: ${match["Arrival Date"]}`;
           } else {
             document.getElementById("result").textContent = isArabic ? "الرمز غير موجود" : "Code not found.";
           }
-          html5QrCode.resume();
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error("Fetch error:", err);
           document.getElementById("result").textContent = isArabic ? "خطأ في الاتصال بالخادم" : "Error contacting server.";
-          html5QrCode.resume();
         });
     }
 
